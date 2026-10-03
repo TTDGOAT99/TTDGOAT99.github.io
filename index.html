@@ -15,10 +15,16 @@
     </header>
 
     <main style="text-align: center; margin-top: 2rem;">
-        <p>Play Dirt Jumper right below!</p>
+        <div id="welcome-screen">
+          <p>Welcome to my gaming hub! Click the button below to play my custom Unity game right in your browser.</p>
+          <div style="text-align: center; margin-top: 2rem;">
+            <!-- Clicking this button will now trigger the game loader -->
+            <button id="play-button" style="display: inline-block; padding: 15px 30px; font-size: 1.2rem; background: linear-gradient(135deg, #6e8efb, #a777e3); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">🎮 Play My Unity Game</button>
+          </div>
+        </div>
         
-        <!-- Unity WebGL Container -->
-        <div id="unity-container" class="unity-desktop" style="position: relative; width: 960px; height: 600px; margin: 0 auto;">
+        <!-- Unity WebGL Container (Hidden by default using display: none) -->
+        <div id="unity-container" class="unity-desktop" style="position: relative; width: 960px; height: 600px; margin: 0 auto; display: none;">
           <canvas id="unity-canvas" width=960 height=600 tabindex="-1" style="background: #231f20; width: 100%; height: 100%;"></canvas>
           <div id="unity-loading-bar" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none;">
             <div id="unity-logo" style="width: 154px; height: 130px; margin: 0 auto 10px;"></div>
@@ -42,6 +48,8 @@
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var warningBanner = document.querySelector("#unity-warning");
+      var playButton = document.querySelector("#play-button");
+      var welcomeScreen = document.querySelector("#welcome-screen");
 
       function unityShowBanner(msg, type) {
         function updateBannerVisibility() {
@@ -61,37 +69,43 @@
         updateBannerVisibility();
       }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Dirt Jumper.loader.js";
-      var config = {
-        dataUrl: buildUrl + "/Dirt Jumper.data.unityweb",
-        frameworkUrl: buildUrl + "/Dirt Jumper.framework.js.unityweb",
-        codeUrl: buildUrl + "/Dirt Jumper.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Dirt Jumper",
-        productVersion: "1.0",
-        showBanner: unityShowBanner,
-      };
+      // This function executes only when the user clicks the button
+      playButton.onclick = () => {
+        // Hide the welcome text and button, then reveal the game screen
+        welcomeScreen.style.display = "none";
+        container.style.display = "block";
 
-      loadingBar.style.display = "block";
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/Dirt Jumper.loader.js";
+        var config = {
+          dataUrl: buildUrl + "/Dirt Jumper.data.unityweb",
+          frameworkUrl: buildUrl + "/Dirt Jumper.framework.js.unityweb",
+          codeUrl: buildUrl + "/Dirt Jumper.wasm.unityweb",
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: "DefaultCompany",
+          productName: "Dirt Jumper",
+          productVersion: "1.0",
+          showBanner: unityShowBanner,
+        };
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                loadingBar.style.display = "none";
-                fullscreenButton.onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-              }).catch((message) => {
-                alert(message);
-              });
+        loadingBar.style.display = "block";
+
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+          createUnityInstance(canvas, config, (progress) => {
+            progressBarFull.style.width = 100 * progress + "%";
+          }).then((unityInstance) => {
+            loadingBar.style.display = "none";
+            fullscreenButton.onclick = () => {
+              unityInstance.SetFullscreen(1);
             };
-
-      document.body.appendChild(script);
+          }).catch((message) => {
+            alert(message);
+          });
+        };
+        document.body.appendChild(script);
+      };
     </script>
   </body>
 </html>
